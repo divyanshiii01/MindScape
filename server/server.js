@@ -4,12 +4,27 @@ const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const { MongoClient } = require("mongodb");
+const multer = require("multer");
+const { PDFParse } = require("pdf-parse");
 
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 10 * 1024 * 1024
+    },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === "application/pdf") {
+            cb(null, true);
+        } else {
+            cb(new Error("Only PDF files are allowed"));
+        }
+    }
+});
 
 const uri = process.env.MONGODB_URI;
 
@@ -99,6 +114,64 @@ async function startServer() {
                 });
             }
         });
+
+        // Upload a PDF and extract its text into the study session
+app.post("/api/session/:sessionId/pdf", upload.single("pdf"), async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Please upload a PDF file"
+            });
+        }
+
+        const session = await sessionsCollection.findOne({ sessionId });
+
+        if (!session) {
+            return res.status(404).json({
+                success: false,
+                message: "Session not found"
+            });
+        }
+
+        const parser = new PDFParse({ data: req.file.buffer });
+        const pdfData = await parser.getText();
+        await parser.destroy();
+        const extractedText = pdfData.text.trim();
+
+        if (!extractedText) {
+            return res.status(400).json({
+                success: false,
+                message: "Could not extract text from this PDF"
+            });
+        }
+
+        await sessionsCollection.updateOne(
+            { sessionId },
+            {
+                $set: {
+                    extractedText
+                }
+            }
+        );
+
+        res.json({
+            success: true,
+            message: "PDF processed successfully",
+            charactersExtracted: extractedText.length
+        });
+
+    } catch (error) {
+        console.error("PDF processing failed:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Could not process PDF"
+        });
+    }
+});
 
         // Basic server health check
         app.get("/", (req, res) => {
