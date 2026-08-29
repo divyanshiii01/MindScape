@@ -244,7 +244,7 @@ app.post("/api/session/:sessionId/analyze", async (req, res) => {
             });
         }
 
-       const prompt = `
+      const prompt = `
 You are MindScape, an engineering study assistant.
 
 Analyze the provided study notes and return ONLY valid JSON.
@@ -267,11 +267,26 @@ The JSON must have exactly these five fields:
     }
   ],
   "questions": [
-    "question 1",
-    "question 2",
-    "question 3",
-    "question 4",
-    "question 5"
+    {
+      "question": "question 1",
+      "answer": "correct answer with a clear explanation"
+    },
+    {
+      "question": "question 2",
+      "answer": "correct answer with a clear explanation"
+    },
+    {
+      "question": "question 3",
+      "answer": "correct answer with a clear explanation"
+    },
+    {
+      "question": "question 4",
+      "answer": "correct answer with a clear explanation"
+    },
+    {
+      "question": "question 5",
+      "answer": "correct answer with a clear explanation"
+    }
   ],
   "revisionPoints": [
     "revision point 1",
@@ -284,10 +299,19 @@ The JSON must have exactly these five fields:
 
 Rules:
 - Use ONLY information supported by the study notes.
-- Keep the content concise.
+- Do not invent facts, formulas, examples, or answers that are not supported by the notes.
+- Create questions that test actual understanding of the study material.
+- Make the questions suitable for an engineering student.
+- Each answer must directly answer its corresponding question.
+- Each answer should also briefly explain the reasoning or principle involved.
+- Do not use generic instructions such as "review the concepts" or "work through the problem."
+- Do not use the same answer for different questions.
+- Keep questions concise but meaningful.
+- Keep answers clear and sufficiently detailed to understand why they are correct.
 - Do not add markdown.
 - Do not add explanations outside the JSON.
-- Make the material useful for an engineering student.
+- Return exactly 5 challenge questions.
+- Return valid JSON only.
 
 STUDY NOTES:
 
