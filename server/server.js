@@ -369,11 +369,11 @@ try {
             res.send("MindScape Backend + MongoDB is Running!");
         });
 
-        app.listen(PORT, () => {
-            console.log(
-                `MindScape server running on http://localhost:${PORT}`
-            );
-        });
+       app.listen(PORT, "0.0.0.0", () => {
+    console.log(
+        `MindScape server running on port ${PORT}`
+    );
+});
 
     } catch (error) {
         console.error("MongoDB connection failed:");
