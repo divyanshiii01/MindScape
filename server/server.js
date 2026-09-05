@@ -225,6 +225,7 @@ app.post("/api/session/:sessionId/pdf", upload.single("pdf"), async (req, res) =
 
 // Analyze the extracted notes using the local AI model
 app.post("/api/session/:sessionId/analyze", async (req, res) => {
+    console.log("ANALYZE ROUTE HIT");
     try {
         const { sessionId } = req.params;
 
@@ -341,7 +342,7 @@ try {
             {
                 $set: {
                     aiAnalysis: analysis,
-                    aiModel: "qwen3:4b-instruct",
+                    aiModel: "Gemini",
                     analyzedAt: new Date()
                 }
             }

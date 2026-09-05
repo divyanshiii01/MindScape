@@ -1,38 +1,62 @@
-const OLLAMA_URL = "http://localhost:11434/api/generate";
-const MODEL_NAME = "qwen3:4b-instruct";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 async function askAI(prompt) {
     try {
-        console.log("Sending request to Ollama...");
-
-        const response = await fetch(OLLAMA_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                model: MODEL_NAME,
-                prompt,
-                stream: false,
-                format: "json"
-            }),
-            signal: AbortSignal.timeout(5 * 60 * 1000)
-        });
-
-        if (!response.ok) {
-            throw new Error(
-                `Ollama request failed with status ${response.status}`
-            );
+        if (!GEMINI_API_KEY) {
+            throw new Error("GEMINI_API_KEY is not configured.");
         }
+
+        console.log("Sending request to Gemini...");
+
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: prompt,
+                                },
+                            ],
+                        },
+                    ],
+                    generationConfig: {
+                        temperature: 0.2,
+                        responseMimeType: "application/json",
+                    },
+                }),
+                signal: AbortSignal.timeout(5 * 60 * 1000),
+            }
+        );
 
         const data = await response.json();
 
-        console.log("Ollama response received.");
+        if (!response.ok) {
+            throw new Error(
+                `Gemini request failed with status ${response.status}: ${JSON.stringify(data)}`
+            );
+        }
 
-        return data.response;
+        const result =
+            data.candidates?.[0]?.content?.parts
+                ?.map((part) => part.text || "")
+                .join("") || "";
 
+        if (!result) {
+            throw new Error("Gemini returned an empty response.");
+        }
+
+        console.log("Gemini response received.");
+
+        return result;
     } catch (error) {
-        console.error("Local AI request failed:", error);
+        console.error("Cloud AI request failed:", error);
         throw error;
     }
 }
