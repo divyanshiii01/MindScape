@@ -52,7 +52,7 @@ function Home({
           </h1>
 
           <p className="home-description">
-            Upload your engineering notes and transform dense material
+            Upload your notes and transform dense material
             into a visual space designed for understanding, revision,
             and active recall.
           </p>
@@ -592,7 +592,7 @@ function ContentPanel({
                     <span>
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <p>{question}</p>
+                    <p>{question.question}</p>
                   </div>
                 )
               )}

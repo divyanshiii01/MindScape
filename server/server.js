@@ -320,7 +320,7 @@ ${session.extractedText}
 `;
 
         console.log(`Starting AI analysis for session ${sessionId}...`);
-        console.log("Sending request to Ollama...");
+        console.log("Sending request to Gemini...");
 
         const aiResponse = await askAI(prompt);
 
@@ -342,7 +342,7 @@ try {
             {
                 $set: {
                     aiAnalysis: analysis,
-                    aiModel: "Gemini",
+                    aiModel: "gemini-3.6-flash",
                     analyzedAt: new Date()
                 }
             }
