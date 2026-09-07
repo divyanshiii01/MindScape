@@ -223,9 +223,8 @@ app.post("/api/session/:sessionId/pdf", upload.single("pdf"), async (req, res) =
     }
 });
 
-// Analyze the extracted notes using the local AI model
+// Analyze the extracted notes using Gemini AI
 app.post("/api/session/:sessionId/analyze", async (req, res) => {
-    console.log("ANALYZE ROUTE HIT");
     try {
         const { sessionId } = req.params;
 
@@ -246,7 +245,7 @@ app.post("/api/session/:sessionId/analyze", async (req, res) => {
         }
 
       const prompt = `
-You are MindScape, an engineering study assistant.
+You are MindScape, an AI-powered learning assistant for students.
 
 Analyze the provided study notes and return ONLY valid JSON.
 
@@ -302,7 +301,7 @@ Rules:
 - Use ONLY information supported by the study notes.
 - Do not invent facts, formulas, examples, or answers that are not supported by the notes.
 - Create questions that test actual understanding of the study material.
-- Make the questions suitable for an engineering student.
+- Make the questions suitable for the study material and appropriate for a student learning that material.
 - Each answer must directly answer its corresponding question.
 - Each answer should also briefly explain the reasoning or principle involved.
 - Do not use generic instructions such as "review the concepts" or "work through the problem."
